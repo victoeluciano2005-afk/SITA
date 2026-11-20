@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "886453326614",
+    "project_id": "sita-4cc04",
+    "storage_bucket": "sita-4cc04.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:886453326614:android:6a186b097971890b1b7637",
+        "android_client_info": {
+          "package_name": "com.aistudio.sitahorta.vkmrqp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPk6tlmAoM7hedrBnI5n_HPIvKkrwqg6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
