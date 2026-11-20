@@ -1,0 +1,6 @@
+{
+  "name": "SiTa",
+  "description": "Assistente de plantio de hortaliças para todo o Brasil com recomendações por bioma, clima, irrigação, ciclo de cultivo e Minha Horta.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

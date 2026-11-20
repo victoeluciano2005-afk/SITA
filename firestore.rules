@@ -1,0 +1,175 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 0: Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable hardened global helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidCultivo(v) {
+      return v is string && v in ['Canteiro', 'Vaso', 'Horta vertical', 'Estufa'];
+    }
+
+    function isValidAdequacao(v) {
+      return v is string && v in ['Ideal', 'Possível com cuidados', 'Não recomendado'];
+    }
+
+    function isValidFavoriteGuide(data, userId) {
+      return data.userId is string && data.userId == userId && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.hortalica is string && data.hortalica.size() >= 1 && data.hortalica.size() <= 80 &&
+        data.estado is string && data.estado.size() >= 2 && data.estado.size() <= 40 &&
+        data.cidade is string && data.cidade.size() >= 1 && data.cidade.size() <= 80 &&
+        data.mesPlantio is string && data.mesPlantio.size() >= 3 && data.mesPlantio.size() <= 30 &&
+        isValidCultivo(data.localCultivo) &&
+        isValidAdequacao(data.adequacao) &&
+        data.vegetacaoBioma is string && data.vegetacaoBioma.size() >= 1 && data.vegetacaoBioma.size() <= 300 &&
+        data.soloTipo is string && data.soloTipo.size() >= 1 && data.soloTipo.size() <= 400 &&
+        data.soloPh is string && data.soloPh.size() >= 1 && data.soloPh.size() <= 100 &&
+        data.soloAdubacao is string && data.soloAdubacao.size() >= 1 && data.soloAdubacao.size() <= 700 &&
+        data.tempMin is string && data.tempMin.size() >= 1 && data.tempMin.size() <= 50 &&
+        data.tempMax is string && data.tempMax.size() >= 1 && data.tempMax.size() <= 50 &&
+        data.luz is string && data.luz.size() >= 1 && data.luz.size() <= 400 &&
+        data.melhoresMeses is string && data.melhoresMeses.size() >= 1 && data.melhoresMeses.size() <= 300 &&
+        (!('toleranciaClima' in data) || (data.toleranciaClima is string && data.toleranciaClima.size() <= 600)) &&
+        (!('alternativas' in data) || (data.alternativas is string && data.alternativas.size() <= 400)) &&
+        data.irrigacaoInicio is string && data.irrigacaoInicio.size() >= 1 && data.irrigacaoInicio.size() <= 500 &&
+        data.irrigacaoMeio is string && data.irrigacaoMeio.size() >= 1 && data.irrigacaoMeio.size() <= 500 &&
+        data.irrigacaoFim is string && data.irrigacaoFim.size() >= 1 && data.irrigacaoFim.size() <= 500 &&
+        data.irrigacaoHorario is string && data.irrigacaoHorario.size() >= 1 && data.irrigacaoHorario.size() <= 400 &&
+        data.cicloInicioDias is int && data.cicloInicioDias >= 1 && data.cicloInicioDias <= 365 &&
+        data.cicloInicioCuidados is string && data.cicloInicioCuidados.size() >= 1 && data.cicloInicioCuidados.size() <= 800 &&
+        data.cicloMeioDias is int && data.cicloMeioDias >= 1 && data.cicloMeioDias <= 365 &&
+        data.cicloMeioCuidados is string && data.cicloMeioCuidados.size() >= 1 && data.cicloMeioCuidados.size() <= 800 &&
+        data.cicloFimDias is int && data.cicloFimDias >= 1 && data.cicloFimDias <= 365 &&
+        data.cicloFimCuidados is string && data.cicloFimCuidados.size() >= 1 && data.cicloFimCuidados.size() <= 800 &&
+        data.totalDias is int && data.totalDias >= 1 && data.totalDias <= 730 &&
+        (!('espacamento' in data) || (data.espacamento is string && data.espacamento.size() <= 300)) &&
+        data.consorcio is string && data.consorcio.size() >= 1 && data.consorcio.size() <= 800 &&
+        data.pragas is string && data.pragas.size() >= 1 && data.pragas.size() <= 900 &&
+        data.dicas is string && data.dicas.size() >= 1 && data.dicas.size() <= 1000 &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidGardenPlant(data, userId) {
+      return data.userId is string && data.userId == userId && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+        data.hortalica is string && data.hortalica.size() >= 1 && data.hortalica.size() <= 80 &&
+        isValidCultivo(data.localCultivo) &&
+        data.cidadeEstado is string && data.cidadeEstado.size() >= 1 && data.cidadeEstado.size() <= 120 &&
+        isValidAdequacao(data.adequacao) &&
+        data.wateringIntervalDays is int && data.wateringIntervalDays >= 1 && data.wateringIntervalDays <= 14 &&
+        data.wateringScheduleLabel is string && data.wateringScheduleLabel.size() >= 1 && data.wateringScheduleLabel.size() <= 240 &&
+        data.reminderEnabled is bool &&
+        data.reminderTime is string && data.reminderTime.size() >= 4 && data.reminderTime.size() <= 10 &&
+        data.plantedAtEpochMillis is int && data.plantedAtEpochMillis >= 1577836800000 && data.plantedAtEpochMillis <= 4102444800000 &&
+        data.lastWateredEpochMillis is int && data.lastWateredEpochMillis >= 0 && data.lastWateredEpochMillis <= 4102444800000 &&
+        data.wateredCount is int && data.wateredCount >= 0 && data.wateredCount <= 10000 &&
+        data.cicloInicioDias is int && data.cicloInicioDias >= 1 && data.cicloInicioDias <= 365 &&
+        data.cicloMeioDias is int && data.cicloMeioDias >= 1 && data.cicloMeioDias <= 365 &&
+        data.totalDias is int && data.totalDias >= 1 && data.totalDias <= 730 &&
+        data.status is string && data.status in ['ACTIVE', 'HARVESTED'] &&
+        (!('notes' in data) || (data.notes is string && data.notes.size() <= 500)) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    match /users/{userId}/favorites/{favoriteId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(favoriteId);
+      allow create: if isOwner(userId) &&
+        isValidId(favoriteId) &&
+        incoming().keys().hasAll([
+          'userId', 'hortalica', 'estado', 'cidade', 'mesPlantio', 'localCultivo',
+          'adequacao', 'vegetacaoBioma', 'soloTipo', 'soloPh', 'soloAdubacao',
+          'tempMin', 'tempMax', 'luz', 'melhoresMeses',
+          'irrigacaoInicio', 'irrigacaoMeio', 'irrigacaoFim', 'irrigacaoHorario',
+          'cicloInicioDias', 'cicloInicioCuidados', 'cicloMeioDias', 'cicloMeioCuidados',
+          'cicloFimDias', 'cicloFimCuidados', 'totalDias',
+          'consorcio', 'pragas', 'dicas', 'createdAt', 'updatedAt'
+        ]) &&
+        incoming().keys().hasOnly([
+          'userId', 'hortalica', 'estado', 'cidade', 'mesPlantio', 'localCultivo',
+          'adequacao', 'vegetacaoBioma', 'soloTipo', 'soloPh', 'soloAdubacao',
+          'tempMin', 'tempMax', 'luz', 'melhoresMeses', 'toleranciaClima', 'alternativas',
+          'irrigacaoInicio', 'irrigacaoMeio', 'irrigacaoFim', 'irrigacaoHorario',
+          'cicloInicioDias', 'cicloInicioCuidados', 'cicloMeioDias', 'cicloMeioCuidados',
+          'cicloFimDias', 'cicloFimCuidados', 'totalDias', 'espacamento',
+          'consorcio', 'pragas', 'dicas', 'createdAt', 'updatedAt'
+        ]) &&
+        isValidFavoriteGuide(incoming(), userId);
+      allow update: if false;
+      allow delete: if isOwner(userId) && isValidId(favoriteId);
+    }
+
+    match /users/{userId}/garden_plants/{plantId} {
+      allow list: if isOwner(userId);
+      allow get: if isOwner(userId) && isValidId(plantId);
+      allow create: if isOwner(userId) &&
+        isValidId(plantId) &&
+        incoming().keys().hasAll([
+          'userId', 'hortalica', 'localCultivo', 'cidadeEstado', 'adequacao',
+          'wateringIntervalDays', 'wateringScheduleLabel', 'reminderEnabled', 'reminderTime',
+          'plantedAtEpochMillis', 'lastWateredEpochMillis', 'wateredCount',
+          'cicloInicioDias', 'cicloMeioDias', 'totalDias', 'status', 'createdAt', 'updatedAt'
+        ]) &&
+        incoming().keys().hasOnly([
+          'userId', 'hortalica', 'localCultivo', 'cidadeEstado', 'adequacao',
+          'wateringIntervalDays', 'wateringScheduleLabel', 'reminderEnabled', 'reminderTime',
+          'plantedAtEpochMillis', 'lastWateredEpochMillis', 'wateredCount',
+          'cicloInicioDias', 'cicloMeioDias', 'totalDias', 'status', 'notes', 'createdAt', 'updatedAt'
+        ]) &&
+        incoming().status == 'ACTIVE' &&
+        incoming().wateredCount == 0 &&
+        isValidGardenPlant(incoming(), userId);
+
+      // Action-based update pattern with Terminal State Locking (HARVESTED is terminal)
+      allow update: if isOwner(userId) &&
+        isValidId(plantId) &&
+        isValidGardenPlant(incoming(), userId) &&
+        existing().status == 'ACTIVE' &&
+        incoming().userId == existing().userId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().plantedAtEpochMillis == existing().plantedAtEpochMillis && (
+          // Action 1: Log watering
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly(['lastWateredEpochMillis', 'wateredCount', 'updatedAt']) &&
+            incoming().wateredCount >= existing().wateredCount
+          ) ||
+          // Action 2: Update watering schedule, reminder, or notes
+          (
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'wateringIntervalDays', 'wateringScheduleLabel', 'reminderEnabled', 'reminderTime', 'notes', 'updatedAt'
+            ])
+          ) ||
+          // Action 3: Mark plant as harvested (terminal state)
+          (
+            incoming().status == 'HARVESTED' &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])
+          )
+        );
+
+      allow delete: if isOwner(userId) && isValidId(plantId);
+    }
+  }
+}

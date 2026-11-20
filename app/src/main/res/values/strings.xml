@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">SiTa</string>
+    <string name="app_subtitle">HortaBrasil • Assistente de Plantio</string>
+    <string name="auth_headline">Cultive sua horta no ritmo do Brasil</string>
+    <string name="auth_subheadline">Guias personalizados por bioma, clima e mês com inteligência agronômica, além de favoritos e calendário de rega na nuvem.</string>
+    <string name="auth_sign_in_google">Entrar com Google</string>
+    <string name="auth_feature_biomes">Adaptado aos 6 biomas e estações brasileiras</string>
+    <string name="auth_feature_cycle">Linha do tempo de germinação até a colheita</string>
+    <string name="auth_feature_sync">Favoritos e Minha Horta sincronizados na nuvem</string>
+    <string name="nav_guia">Guia</string>
+    <string name="nav_minha_horta">Minha Horta</string>
+    <string name="nav_favoritos">Favoritos</string>
+    <string name="btn_ver_guia">Ver guia de plantio</string>
+    <string name="btn_usar_localizacao">Usar minha localização</string>
+    <string name="btn_favoritar">Favoritar</string>
+    <string name="btn_favoritado">Favoritado</string>
+    <string name="btn_plantar_horta">Plantar na Minha Horta</string>
+    <string name="btn_nova_consulta">Nova consulta</string>
+    <string name="btn_regar_agora">Reguei agora</string>
+    <string name="btn_colher">Marcar colheita</string>
+    <string name="btn_sair">Sair da conta</string>
+    <string name="cd_hero_banner">Ilustração de horta caseira brasileira com vasos de barro e hortaliças</string>
+    <string name="cd_empty_garden">Ilustração de vaso de barro e ferramentas de jardinagem</string>
+    <string name="cd_account">Conta do usuário</string>
+    <string name="cd_back">Voltar</string>
+</resources>
