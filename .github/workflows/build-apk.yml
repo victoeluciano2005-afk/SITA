@@ -42,7 +42,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.SITA_KEY_ALIAS }}
         run: |
           printf '%s' "$SITA_KEYSTORE_BASE64" | base64 --decode > debug.keystore
-          keytool -list -v -keystore debug.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" | grep -i SHA1
+        keytool -list -v -keystore debug.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" | grep -E 'SHA1:|SHA256:'
 
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug
