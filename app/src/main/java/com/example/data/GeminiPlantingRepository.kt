@@ -141,7 +141,7 @@ class GeminiPlantingRepository {
     }
 
     private val visionModel by lazy {
-        Firebase.ai.generativeModel(
+        Firebase.ai(backend = GenerativeBackend.googleAI()).generativeModel(
             modelName = MODEL_NAME,
             generationConfig = generationConfig {
                 responseMimeType = "application/json"
