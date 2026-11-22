@@ -34,11 +34,16 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
-      - name: Generate debug keystore and show SHA-1
-        run: |
-          keytool -genkeypair -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          keytool -list -v -keystore debug.keystore -storepass android -alias androiddebugkey | grep -i SHA1
       
+      - name: Restore permanent debug keystore
+        env:
+          SITA_KEYSTORE_BASE64: ${{ secrets.SITA_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.SITA_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SITA_KEY_ALIAS }}
+        run: |
+          printf '%s' "$SITA_KEYSTORE_BASE64" | base64 --decode > debug.keystore
+          keytool -list -v -keystore debug.keystore -storepass "$KEYSTORE_PASSWORD" -alias "$KEY_ALIAS" | grep -i SHA1
+
       - name: Build APK
         run: gradle --no-daemon :app:assembleDebug
 
